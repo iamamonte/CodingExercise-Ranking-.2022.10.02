@@ -1,0 +1,71 @@
+bin/
+obj/
+.idea/
+.DS_Store
+.vs/
+.vscode/
+**/*DotSettings.user
+
+### *** required entries below ***
+###
+### Please do not add anything below this line, your changes will be overwritten
+###
+*.iml
+*.iws
+*.launch
+.externalToolBuilders/
+.DS.d74cb6fe
+__MACOSX/
+.nb-gradle/
+.project
+.settings/
+.history/
+atlassian-ide-plugin.xml
+nbactions.xml
+nbbuild/
+nbdist/
+nbproject/private/
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/4c896
+!.vscode/extensions.json
+*.code-workspace
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+*.pidb
+*.resources
+*.sln.docstates
+*.suo
+*.user
+*.userosscache
+*.userprefs
+*.usertasks
+.vscode/*
+test-results/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+packages/
+*.nupkg
+*.trx
+
+
+
+
+###
+###                                                                                                                                                                                                                                  git#313494
+###
