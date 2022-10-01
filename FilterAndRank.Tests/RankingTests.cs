@@ -8,7 +8,155 @@ namespace FilterAndRank.Tests
     {
         // TODO: This is a partial list of tests, and may be extended. You do NOT need to add any `@Category` annotations
         //       to your own new test methods.
-        
+
+        [Test]
+        public void TestExcludePersonsWithNoRank()
+        {
+            var people = new List<Person>
+            {
+                new Person(1, "name"),
+                new Person(2, "name"),
+                new Person(3, "name"),
+                new Person(4, "name"),
+                new Person(5, "name")
+            };
+
+            var rankingData = new List<CountryRanking>
+            {
+                new CountryRanking(1, "country", 1),
+            };
+
+            var expectedResults = new List<RankedResult>()
+            {
+                new RankedResult(1, 1),
+
+            };
+
+            var actualResults = FilterByCountryWithRank(
+                people,
+                rankingData,
+                new List<string> { "country" },
+                1, int.MaxValue,
+                int.MaxValue
+            );
+
+            CollectionAssert.AreEquivalent(expectedResults, new HashSet<RankedResult>(actualResults));
+        }
+
+        [Test]
+        public void TestConsidersMaxCount()
+        {
+            var people = new List<Person>
+            {
+                new Person(1, "name"),
+                new Person(2, "name"),
+                new Person(3, "name"),
+                new Person(4, "name"),
+                new Person(5, "name")
+            };
+
+            var rankingData = new List<CountryRanking>
+            {
+                new CountryRanking(1, "country", 1),
+                new CountryRanking(2, "country", 2),
+                new CountryRanking(3, "country", 3),
+                new CountryRanking(4, "country", 4),
+                new CountryRanking(5, "country", 5)
+            };
+
+            var expectedResults = new List<RankedResult>()
+            {
+                new RankedResult(1, 1),
+                new RankedResult(2, 2),
+            };
+
+            var actualResults = FilterByCountryWithRank(
+                people,
+                rankingData,
+                new List<string> { "country" },
+                1, int.MaxValue,
+                2
+            );
+
+            // we don't care about ordering for this test
+            CollectionAssert.AreEquivalent(expectedResults, new HashSet<RankedResult>(actualResults));
+        }
+
+        [Test]
+        public void TestConsidersMaxCountWhenRanksSplit()
+        {
+            var people = new List<Person>
+            {
+                new Person(1, "name"),
+                new Person(2, "name"),
+                new Person(3, "name"),
+                new Person(4, "name"),
+                new Person(5, "name")
+            };
+
+            var rankingData = new List<CountryRanking>
+            {
+                new CountryRanking(1, "country", 1),
+                new CountryRanking(2, "country", 2),
+                new CountryRanking(3, "country", 2),
+                new CountryRanking(4, "country", 3),
+                new CountryRanking(5, "country", 5)
+            };
+
+            var expectedResults = new List<RankedResult>()
+            {
+                new RankedResult(1, 1),
+                new RankedResult(2, 2),
+                new RankedResult(3, 2),
+            };
+
+            var actualResults = FilterByCountryWithRank(
+                people,
+                rankingData,
+                new List<string> { "country" },
+                1, int.MaxValue,
+                2
+            );
+
+            // we don't care about ordering for this test
+            CollectionAssert.AreEquivalent(expectedResults, new HashSet<RankedResult>(actualResults));
+        }
+
+        [Test]
+        public void TestReturnsEmptyWhenNoCountryFilterIsPresent()
+        {
+            var people = new List<Person>
+            {
+                new Person(1, "name"),
+                new Person(2, "name"),
+                new Person(3, "name"),
+                new Person(4, "name"),
+                new Person(5, "name")
+            };
+
+            var rankingData = new List<CountryRanking>
+            {
+                new CountryRanking(1, "country", 1),
+                new CountryRanking(2, "country", 2),
+                new CountryRanking(3, "country", 3),
+                new CountryRanking(4, "country", 4),
+                new CountryRanking(5, "country", 5)
+            };
+
+            var expectedResults = new List<RankedResult>();
+
+            var actualResults = FilterByCountryWithRank(
+                people,
+                rankingData,
+                new List<string>(),
+                1, int.MaxValue,
+                int.MaxValue
+            );
+
+            // we don't care about ordering for this test
+            CollectionAssert.AreEquivalent(expectedResults, new HashSet<RankedResult>(actualResults));
+        }
+
         [Test]
         [Category("provided")]
         [Category("requirement-filterByCountry")]
@@ -55,7 +203,7 @@ namespace FilterAndRank.Tests
         [Test]
         [Category("provided")]
         [Category("requirement-filterByCountry")]
-        public void TestPersonsAreFilteredByMoreThankOneCountry()
+        public void TestPersonsAreFilteredByMoreThanOneCountry()
         {
             var people = new List<Person>
             {
@@ -184,6 +332,48 @@ namespace FilterAndRank.Tests
             CollectionAssert.AreEqual(expectedResults, actualResults);
         }
 
+        [Test]
+        public void TestPeopleAreSortedSecondByCountryOrdinal_caseInsensitive()
+        {
+            var people = new List<Person>
+            {
+                new Person(1, "name"),
+                new Person(3, "name"),
+                new Person(4, "name"),
+                new Person(2, "name"),
+                new Person(5, "name")
+            };
+
+            var rankingData = new List<CountryRanking>
+            {
+                new CountryRanking(3, "55_third", 1),
+                new CountryRanking(4, "99_first", 2),
+                new CountryRanking(5, "01_second", 2),
+                new CountryRanking(2, "01_Second", 1),
+                new CountryRanking(1, "99_first", 1)
+            };
+
+            var expectedResults = new List<RankedResult>()
+            {
+                new RankedResult(1, 1),
+                new RankedResult(2, 1),
+                new RankedResult(3, 1),
+                new RankedResult(4, 2),
+                new RankedResult(5, 2)
+            };
+
+            // TODO: what about case insensitivity when checking ordinal, does this test for that?!?
+
+            var actualResults = FilterByCountryWithRank(
+                people,
+                rankingData,
+                new List<string>() { "99_first", "01_second", "55_third" },
+                1, 10,
+                100
+            );
+
+            CollectionAssert.AreEqual(expectedResults, actualResults);
+        }
 
         [Test]
         [Category("user")]
@@ -242,6 +432,63 @@ namespace FilterAndRank.Tests
 
             CollectionAssert.AreEqual(expectedResults, actualResults);
         }
+
+        [Test]
+        public void TestPeopleAreSorted_withMultipleSortParameters()
+        {
+            var people = new List<Person>
+            {
+                new Person(1, "nameOne"),
+                new Person(2, "nameTwo"),
+                new Person(4, "nameFour"),
+                new Person(5, "nameFive"),
+                new Person(3, "nameThree"),
+                new Person(13, "xnameThree"),
+                new Person(11, "xnameOne"),
+                new Person(12, "xnameTwo"),
+                new Person(14, "xnameFour"),
+                new Person(15, "xnameFive")
+            };
+
+            var rankingData = new List<CountryRanking>
+            {
+                new CountryRanking(3, "3country", 1),
+                new CountryRanking(4, "3country", 1),
+                new CountryRanking(1, "2country", 1),
+                new CountryRanking(5, "2country", 1),
+                new CountryRanking(2, "1country", 1),
+                new CountryRanking(14, "country", 2),
+                new CountryRanking(15, "country", 2),
+                new CountryRanking(12, "country", 2),
+                new CountryRanking(13, "country", 2),
+                new CountryRanking(11, "country", 2)
+            };
+
+            var expectedResults = new List<RankedResult>()
+            {
+                new RankedResult(2, 1),
+                new RankedResult(1, 1),
+                new RankedResult(5, 1),
+                new RankedResult(3, 1),
+                new RankedResult(4, 1),
+                new RankedResult(15, 2),
+                new RankedResult(14, 2),
+                new RankedResult(11, 2),
+                new RankedResult(13, 2),
+                new RankedResult(12, 2)
+            };
+
+            var actualResults = FilterByCountryWithRank(
+                people,
+                rankingData,
+                new List<string> { "country" },
+                1, int.MaxValue,
+                int.MaxValue
+            );
+
+            CollectionAssert.AreEqual(expectedResults, actualResults);
+        }
+
 
         [Test]
         [Category("provided")]
