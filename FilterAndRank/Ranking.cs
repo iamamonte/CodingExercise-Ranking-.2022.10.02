@@ -31,6 +31,8 @@ namespace FilterAndRank
             // order
             var orderedRecords = validPersons.OrderBy(pr => pr.Ranking.Rank);
 
+            if (!orderedRecords.Any()) return result;
+
             var count = 0;
             while (count < maxCount)
             {
@@ -56,9 +58,7 @@ namespace FilterAndRank
             }
 
 
-            return orderedRecords
-                .Select(p => new RankedResult(p.Id, p.Ranking.Rank))
-                .ToList();
+            return result;
         }
     }
 }
