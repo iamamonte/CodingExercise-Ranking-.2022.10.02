@@ -34,6 +34,8 @@ namespace FilterAndRank
             if (!orderedRecords.Any()) return result;
 
             var count = 0;
+            if (maxCount > orderedRecords.Count()) maxCount = orderedRecords.Count();
+
             while (count < maxCount)
             {
 
