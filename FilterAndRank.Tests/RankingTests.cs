@@ -467,10 +467,11 @@ namespace FilterAndRank.Tests
             var expectedResults = new List<RankedResult>()
             {
                 new RankedResult(2, 1),
-                new RankedResult(1, 1),
-                new RankedResult(5, 1),
-                new RankedResult(3, 1),
                 new RankedResult(4, 1),
+                new RankedResult(3, 1),
+                new RankedResult(5, 1),
+                new RankedResult(1, 1),
+              
                 new RankedResult(15, 2),
                 new RankedResult(14, 2),
                 new RankedResult(11, 2),
@@ -481,7 +482,7 @@ namespace FilterAndRank.Tests
             var actualResults = FilterByCountryWithRank(
                 people,
                 rankingData,
-                new List<string> { "country" },
+                new List<string> { "country", "1country", "3country", "2country", },
                 1, int.MaxValue,
                 int.MaxValue
             );
